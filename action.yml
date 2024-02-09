@@ -95,7 +95,7 @@ runs:
     - run: echo "${{ steps.wfw.outputs.result }}"
       shell: bash
     - run: |
-        results='${{ steps.get-outputs.outputs.results }}'
+        results='${{ steps.wfw.outputs.results }}'
         echo $results | jq '.[] | "build-ids=\(.buildIds)"' >> $GITHUB_OUTPUT
         echo $results | jq '.[] | "lowest=\(.lowest)"' >> $GITHUB_OUTPUT
         echo $results | jq '.[] | "highest=\(.highest)"' >> $GITHUB_OUTPUT
