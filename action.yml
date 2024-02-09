@@ -93,6 +93,7 @@ runs:
             highest: highest.toString()
           };
     - run: echo "${{ steps.wfw.outputs.result }}"
+      shell: bash
     - run: echo "build-ids=${{ steps.wfw.outputs.result.build-ids }}" >> $GITHUB_OUTPUT
       shell: bash
     - run: echo "lowest=${{ steps.wfw.outputs.result.lowest }}" >> $GITHUB_OUTPUT
