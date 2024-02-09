@@ -92,9 +92,10 @@ runs:
             lowest: lowest.toString(),
             highest: highest.toString()
           };
-    - run: echo "::set-output name=buildIds::${{ steps.wfw.outputs.result.build-ids }}"
+    - run: echo "${{ steps.wfw.outputs.result }}"
+    - run: echo "build-ids=${{ steps.wfw.outputs.result.build-ids }}" >> $GITHUB_OUTPUT
       shell: bash
-    - run: echo "::set-output name=lowest::${{ steps.wfw.outputs.result.lowest }}"
+    - run: echo "lowest=${{ steps.wfw.outputs.result.lowest }}" >> $GITHUB_OUTPUT
       shell: bash
-    - run: echo "::set-output name=highest::${{ steps.wfw.outputs.result.highest }}"
+    - run: echo "highest=${{ steps.wfw.outputs.result.highest }}" >> $GITHUB_OUTPUT
       shell: bash
