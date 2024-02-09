@@ -87,6 +87,8 @@ runs:
           }
 
           // Set outputs
-          core.setOutput("build-ids", buildIds.join(','));
-          core.setOutput("lowest", lowest.toString());
-          core.setOutput("highest", highest.toString());
+          return {
+            buildIds: buildIds.join(','),
+            lowest: lowest.toString(),
+            highest: highest.toString()
+          };
