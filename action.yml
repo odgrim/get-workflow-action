@@ -78,16 +78,12 @@ runs:
           await sleep(WAIT_TIME)
           const WORKFLOWS = await checkWorkflows(github, context, EXCLUDE_WORKFLOW_NAMES, EXCLUDE_WORKFLOW_IDS, EXCLUDE_WORKFLOW_RUN_IDS)
 
-          if (DEBUG) {
-            console.log("workflow_runs returned:", WORKFLOWS)
-          }
-
           const buildIds = WORKFLOWS.map(workflow => workflow.workflow_id);
           const lowest = Math.min(...buildIds);
           const highest = Math.max(...buildIds);
           if (DEBUG) {
             console.log("workflow_runs returned", WORKFLOWS);
-            console.log("workflow_runs ids", WORKFLOWS.map(workflow => workflow.run_id));
+            console.log("workflow_runs ids", buildIds.join(','));
           }
           // Set outputs
           core.setOutput("build-ids", buildIds.join(','));
