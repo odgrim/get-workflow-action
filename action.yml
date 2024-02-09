@@ -87,7 +87,7 @@ runs:
           }
 
           // Set outputs
-          return JSON.stringify{
+          return JSON.stringify({
             buildIds: buildIds.join(','),
             lowest: lowest.toString(),
             highest: highest.toString()
@@ -96,3 +96,4 @@ runs:
       shell: bash
     - run: |
       results='${{ steps.get-outputs.outputs.results }}'
+      echo $results
