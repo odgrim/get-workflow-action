@@ -92,3 +92,6 @@ runs:
             lowest: lowest.toString(),
             highest: highest.toString()
           };
+    - run: echo "::set-output name=buildIds::${{ steps.wfw.outputs.result.build-ids }}"
+    - run: echo "::set-output name=lowest::${{ steps.wfw.outputs.result.lowest }}"
+    - run: echo "::set-output name=highest::${{ steps.wfw.outputs.result.highest }}"
