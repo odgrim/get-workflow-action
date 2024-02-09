@@ -86,6 +86,8 @@ runs:
             console.log("workflow_runs lowest", lowest.toString());
             console.log("workflow_runs highest", highest.toString());
           }
+          import * as core from '@actions/core';
+
           // Set outputs
           core.setOutput("build-ids", buildIds.join(','));
           core.setOutput("lowest", lowest.toString());
