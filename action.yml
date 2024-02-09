@@ -87,16 +87,12 @@ runs:
           }
 
           // Set outputs
-          return {
+          return JSON.stringify{
             buildIds: buildIds.join(','),
             lowest: lowest.toString(),
             highest: highest.toString()
-          };
+          });
     - run: echo "${{ steps.wfw.outputs.result }}"
       shell: bash
-    - run: echo "build-ids=${{ steps.wfw.outputs.result.build-ids }}" >> $GITHUB_OUTPUT
-      shell: bash
-    - run: echo "lowest=${{ steps.wfw.outputs.result.lowest }}" >> $GITHUB_OUTPUT
-      shell: bash
-    - run: echo "highest=${{ steps.wfw.outputs.result.highest }}" >> $GITHUB_OUTPUT
-      shell: bash
+    - run: |
+      results='${{ steps.get-outputs.outputs.results }}'
