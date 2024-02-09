@@ -1,0 +1,88 @@
+name: Wait for workflows
+description: "Action that checks and waits for workflows w/ the same reference (head_sha) to complete"
+inputs:
+  wait-time:
+    description: "Amount of time to wait before checking for other workflows"
+    default: "5"
+    required: true
+  exclude-workflow-names:
+    description: "Optional - Command separated list of workflow names to exclude"
+    default: ""
+    required: false
+  exclude-workflow-ids:
+    description: "Optional - Command separated list of workflow ids to exclude"
+    default: ""
+    required: false
+  github-token:
+    description: "Github access token"
+    default: ${{ github.token }}
+    required: true
+outputs:
+  build-ids:
+    description: 'List of all build-ids that are touched this ref within the time allotted'
+  lowest:
+    description: 'Lowest build id among build-ids'
+  highest:
+    description: 'Highest build id among build-ids'
+runs:
+  using: composite
+  steps:
+    - name: wait-for-workflows
+      id: wfw
+      uses: actions/github-script@v7
+      env:
+        WAIT_TIME: ${{ inputs.wait-time }}
+        EXCLUDE_WORKFLOW_NAMES: ${{ inputs.exclude-workflow-names }}
+        EXCLUDE_WORKFLOW_IDS: ${{ inputs.exclude-workflow-ids }}
+        WORKFLOW_RUN_ID: ${{ github.run_id }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        result-encoding: string
+        script: |
+          async function checkWorkflows(github, context, EXCLUDE_WORKFLOW_NAMES, EXCLUDE_WORKFLOW_IDS, EXCLUDE_WORKFLOW_RUN_IDS) {
+            const { DEBUG, GITHUB_SHA } = process.env
+
+            // https://octokit.github.io/rest.js/v19#actions-list-workflow-runs-for-repo
+            const WORKFLOW_RUNS_FOR_REPO_RESPONSE = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.payload.organization.login,
+              repo: context.payload.repository.name,
+              head_sha: context.payload.after || GITHUB_SHA
+            })
+
+            if (DEBUG) {
+              console.log("workflow_runs length:", WORKFLOW_RUNS_FOR_REPO_RESPONSE.data.workflow_runs.length)
+              const workflows = WORKFLOW_RUNS_FOR_REPO_RESPONSE.data.workflow_runs.reduce((acc, val) => acc.concat([{ run_id: val.id, name: val.name, workflow_id: val.workflow_id, run_attempt: val.run_attempt }]), [])
+              console.log("workflow_runs:", workflows)
+            }
+
+            // pending workflows
+            const WORKFLOWS = WORKFLOW_RUNS_FOR_REPO_RESPONSE.data.workflow_runs.filter(
+              (run) => !EXCLUDE_WORKFLOW_RUN_IDS.includes(run.id) && !EXCLUDE_WORKFLOW_NAMES.includes(run.name) && !EXCLUDE_WORKFLOW_IDS.includes(run.workflow_id)
+            );
+
+            return WORKFLOWS
+          }
+
+          async function sleep(seconds) {
+            return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+          }
+
+          const { DEBUG } = process.env
+
+          const MAX_TIMEOUT = Number(process.env.MAX_TIMEOUT)
+          const POLLING_INTERVAL = Number(process.env.POLLING_INTERVAL)
+          const EXCLUDE_WORKFLOW_NAMES = process.env.EXCLUDE_WORKFLOW_NAMES == "" ? [] : process.env.EXCLUDE_WORKFLOW_NAMES.split(",")
+          const EXCLUDE_WORKFLOW_IDS = process.env.EXCLUDE_WORKFLOW_IDS == "" ? [] : process.env.EXCLUDE_WORKFLOW_IDS.split(",")
+          const EXCLUDE_WORKFLOW_RUN_IDS = [Number(process.env.WORKFLOW_RUN_ID)]
+
+          await sleep($WAIT_TIME)
+          const WORKFLOWS = await checkWorkflows(github, context, EXCLUDE_WORKFLOW_NAMES, EXCLUDE_WORKFLOW_IDS, EXCLUDE_WORKFLOW_RUN_IDS)
+
+          const buildIds = WORKFLOWS.map(workflow => workflow.run_id);
+          const lowest = Math.min(...buildIds);
+          const highest = Math.max(...buildIds);
+
+          // Set outputs
+          core.setOutput("build-ids", buildIds.join(','));
+          core.setOutput("lowest", lowest.toString());
+          core.setOutput("highest", highest.toString());
