@@ -81,12 +81,10 @@ runs:
           const lowest = Math.min(...buildIds);
           const highest = Math.max(...buildIds);
           if (DEBUG) {
-            console.log("workflow_runs returned", WORKFLOWS);
             console.log("workflow_runs ids", buildIds.join(','));
             console.log("workflow_runs lowest", lowest.toString());
             console.log("workflow_runs highest", highest.toString());
           }
-          import * as core from '@actions/core';
 
           // Set outputs
           core.setOutput("build-ids", buildIds.join(','));
