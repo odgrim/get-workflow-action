@@ -70,12 +70,12 @@ runs:
           const { DEBUG } = process.env
 
           const MAX_TIMEOUT = Number(process.env.MAX_TIMEOUT)
-          const POLLING_INTERVAL = Number(process.env.POLLING_INTERVAL)
+          const WAIT_TIME = Number(process.env.WAIT_TIME)
           const EXCLUDE_WORKFLOW_NAMES = process.env.EXCLUDE_WORKFLOW_NAMES == "" ? [] : process.env.EXCLUDE_WORKFLOW_NAMES.split(",")
           const EXCLUDE_WORKFLOW_IDS = process.env.EXCLUDE_WORKFLOW_IDS == "" ? [] : process.env.EXCLUDE_WORKFLOW_IDS.split(",")
           const EXCLUDE_WORKFLOW_RUN_IDS = [Number(process.env.WORKFLOW_RUN_ID)]
 
-          await sleep($WAIT_TIME)
+          await sleep(WAIT_TIME)
           const WORKFLOWS = await checkWorkflows(github, context, EXCLUDE_WORKFLOW_NAMES, EXCLUDE_WORKFLOW_IDS, EXCLUDE_WORKFLOW_RUN_IDS)
 
           const buildIds = WORKFLOWS.map(workflow => workflow.run_id);
