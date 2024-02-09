@@ -20,10 +20,13 @@ inputs:
 outputs:
   build-ids:
     description: 'List of all build-ids that are touched this ref within the time allotted'
+    value: ${{ steps.output-generator.outputs.build-ids }}
   lowest:
     description: 'Lowest build id among build-ids'
+    value: ${{ steps.output-generator.outputs.lowest }}
   highest:
     description: 'Highest build id among build-ids'
+    value: ${{ steps.output-generator.outputs.highest }}
 runs:
   using: composite
   steps:
@@ -94,7 +97,8 @@ runs:
           });
     - run: echo "${{ steps.wfw.outputs.result }}"
       shell: bash
-    - run: |
+    - id: output-generator
+      run: |
         results='${{ steps.wfw.outputs.result }}'
         echo "build-ids=$(echo ${results} | jq -r '.buildIds')"
         echo "build-ids=$(echo ${results} | jq -r '.buildIds')" >> $GITHUB_OUTPUT
